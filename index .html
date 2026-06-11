@@ -189,6 +189,41 @@
   .submitted-item-tag { display: inline-block; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; background: #f0f0f0; padding: 2px 8px; margin-right: 8px; color: #666; }
   .submitted-delete { font-size: 12px; color: #ccc; cursor: pointer; border: none; background: none; padding: 4px; transition: color 0.2s; flex-shrink: 0; }
   .submitted-delete:hover { color: #c00; }
+
+  /* PAYWALL */
+  .paywall-overlay { position: relative; overflow: hidden; }
+  .paywall-overlay::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to bottom, transparent, white); pointer-events: none; }
+  .paywall-box { background: #fafafa; border: 1px solid var(--border); padding: 40px; text-align: center; margin-top: 32px; }
+  .paywall-icon { font-size: 32px; margin-bottom: 16px; }
+  .paywall-title { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 12px; }
+  .paywall-sub { font-size: 14px; color: #666; line-height: 1.7; margin-bottom: 28px; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .paywall-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 500px; margin: 0 auto 24px; }
+  .paywall-plan { border: 1px solid var(--border); padding: 20px; text-align: left; transition: border-color 0.2s; }
+  .paywall-plan:hover { border-color: var(--black); }
+  .paywall-plan-name { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+  .paywall-plan-price { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .paywall-plan-price span { font-size: 13px; font-family: 'DM Sans', sans-serif; color: #888; }
+  .paywall-plan-features { font-size: 12px; color: #666; line-height: 1.8; }
+  .paywall-btn { display: inline-block; padding: 14px 40px; background: var(--black); color: white; border: none; cursor: pointer; font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; transition: background 0.2s; text-decoration: none; }
+  .paywall-btn:hover { background: #333; }
+  .paywall-login { margin-top: 14px; font-size: 13px; color: #888; }
+  .paywall-login span { color: var(--black); cursor: pointer; border-bottom: 1px solid var(--black); }
+
+  .paywall-box { border: 1px solid var(--border); padding: 48px; text-align: center; margin-top: 32px; background: #fafafa; position: relative; }
+  .paywall-box::before { content: ''; position: absolute; top: -40px; left: 0; right: 0; height: 40px; background: linear-gradient(to bottom, transparent, white); }
+  .paywall-icon { font-size: 32px; margin-bottom: 16px; }
+  .paywall-title { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 12px; }
+  .paywall-sub { font-size: 14px; color: #666; line-height: 1.7; max-width: 480px; margin: 0 auto 32px; }
+  .paywall-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 480px; margin: 0 auto 28px; }
+  .paywall-plan { border: 1px solid var(--border); padding: 20px; text-align: left; }
+  .paywall-plan-name { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 8px; }
+  .paywall-plan-price { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 12px; }
+  .paywall-plan-price span { font-size: 13px; color: #888; font-family: 'DM Sans', sans-serif; }
+  .paywall-plan-features { font-size: 12px; color: #555; line-height: 1.9; }
+  .paywall-btn { padding: 14px 40px; background: var(--black); color: white; border: none; cursor: pointer; font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; transition: background 0.2s; margin-bottom: 16px; }
+  .paywall-btn:hover { background: #333; }
+  .paywall-login { font-size: 13px; color: #888; }
+  .paywall-login span { color: var(--black); cursor: pointer; border-bottom: 1px solid var(--black); }
   footer { border-top: 1px solid var(--border); padding: 32px 36px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #888; }
   footer a { color: #888; text-decoration: none; cursor: pointer; }
   footer a:hover { color: var(--black); }
@@ -197,7 +232,27 @@
     .header-nav { display: none; }
     .research-grid, .about-split, .nl-subscribe-box { grid-template-columns: 1fr; }
     .pricing-grid { grid-template-columns: 1fr; }
-    footer { flex-direction: column; gap: 12px; text-align: center; }
+  
+  /* PAYWALL */
+  .paywall-overlay { position: relative; overflow: hidden; }
+  .paywall-overlay::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 200px; background: linear-gradient(to bottom, transparent, white); pointer-events: none; }
+  .paywall-box { background: #fafafa; border: 1px solid var(--border); padding: 40px; text-align: center; margin-top: 32px; }
+  .paywall-icon { font-size: 32px; margin-bottom: 16px; }
+  .paywall-title { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 12px; }
+  .paywall-sub { font-size: 14px; color: #666; line-height: 1.7; margin-bottom: 28px; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .paywall-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; max-width: 500px; margin: 0 auto 24px; }
+  .paywall-plan { border: 1px solid var(--border); padding: 20px; text-align: left; transition: border-color 0.2s; }
+  .paywall-plan:hover { border-color: var(--black); }
+  .paywall-plan-name { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+  .paywall-plan-price { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .paywall-plan-price span { font-size: 13px; font-family: 'DM Sans', sans-serif; color: #888; }
+  .paywall-plan-features { font-size: 12px; color: #666; line-height: 1.8; }
+  .paywall-btn { display: inline-block; padding: 14px 40px; background: var(--black); color: white; border: none; cursor: pointer; font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; transition: background 0.2s; text-decoration: none; }
+  .paywall-btn:hover { background: #333; }
+  .paywall-login { margin-top: 14px; font-size: 13px; color: #888; }
+  .paywall-login span { color: var(--black); cursor: pointer; border-bottom: 1px solid var(--black); }
+
+  footer { flex-direction: column; gap: 12px; text-align: center; }
   }
 </style>
 </head>
@@ -296,23 +351,36 @@
   <div class="page-hero">
     <p class="page-hero-label">Han Insights</p>
     <h1 class="page-hero-title">About Us</h1>
-    <p class="page-hero-sub">Who we are, what we believe, and why it matters.</p>
+    <p class="page-hero-sub">Start with facts, not conclusions.</p>
   </div>
   <div class="inner-section">
     <div class="about-split">
       <div class="about-img-wrap">📷 about-photo.jpg</div>
       <div>
-        <p class="about-label">Our Story</p>
-        <h2 class="about-title">关于 Han Insights 的介绍标题</h2>
-        <div class="about-body"><p>关于团队或公司的介绍文字放这里。</p><p>第二段放这里。</p></div>
+        <p class="about-label">Our Philosophy</p>
+        <h2 class="about-title">Built on a simple principle.</h2>
+        <div class="about-body">
+          <p>Han Insights is built on a simple principle: Start with facts, not conclusions.</p>
+          <p>Rather than beginning with a predetermined narrative and searching for supporting evidence, we start with data, market observations, and industry developments. We then build a framework to explain what the evidence suggests.</p>
+          <p>Our goal is not to advocate for a company, product, exchange, asset manager, or investment position. Our goal is to understand how markets, technology, and capital allocation interact — and to help investors think more clearly about those dynamics.</p>
+        </div>
       </div>
     </div>
     <div class="team-section">
       <p class="team-label">The Team</p>
-      <div class="team-grid">
-        <div class="team-card"><div class="team-avatar">📷</div><p class="team-name">姓名</p><p class="team-role">Role</p></div>
-        <div class="team-card"><div class="team-avatar">📷</div><p class="team-name">姓名</p><p class="team-role">Role</p></div>
-        <div class="team-card"><div class="team-avatar">📷</div><p class="team-name">姓名</p><p class="team-role">Role</p></div>
+      <div class="team-grid" style="grid-template-columns: repeat(2, 1fr); max-width: 700px;">
+        <div class="team-card" style="text-align:left;">
+          <div class="team-avatar" style="background:#e8e0d0;border:none;font-size:28px;margin-left:0;">📷</div>
+          <p class="team-name" style="margin-top:8px;">姓名放这里</p>
+          <p class="team-role">职位放这里</p>
+          <p style="font-size:13px;color:#555;margin-top:16px;line-height:1.8;">介绍文字放这里。</p>
+        </div>
+        <div class="team-card" style="text-align:left;">
+          <div class="team-avatar" style="background:#e8e0d0;border:none;font-size:28px;margin-left:0;">✦</div>
+          <p class="team-name" style="margin-top:8px;">Jinhan Yang (Gina)</p>
+          <p class="team-role">Creative Director</p>
+          <p style="font-size:13px;color:#555;margin-top:16px;line-height:1.8;">Graphic Design student at Columbia College Chicago, with a deep interest in finance, investment, and the intersection of visual storytelling and market analysis. Committed to women's welfare and bringing more diverse voices into financial discourse.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -569,6 +637,33 @@ function renderCards() {
   }).join('');
 }
 
+function isPaidUser() {
+  // For now: logged in = paid. Later connect to real payment.
+  return isLoggedIn();
+}
+
+function showPaywall(body) {
+  body.innerHTML += '<div class="paywall-box">' +
+    '<div class="paywall-icon">🔒</div>' +
+    '<h3 class="paywall-title">Continue Reading</h3>' +
+    '<p class="paywall-sub">Subscribe to Han Insights for full access to all research articles and newsletter issues.</p>' +
+    '<div class="paywall-plans">' +
+      '<div class="paywall-plan">' +
+        '<div class="paywall-plan-name">Standard</div>' +
+        '<div class="paywall-plan-price">$12 <span>/ month</span></div>' +
+        '<div class="paywall-plan-features">✓ Unlimited articles<br>✓ Newsletter archive<br>✓ Weekly reports</div>' +
+      '</div>' +
+      '<div class="paywall-plan" style="border-color:var(--vip-gold);">' +
+        '<div class="paywall-plan-name" style="color:var(--vip-gold);">VIP</div>' +
+        '<div class="paywall-plan-price">$39 <span>/ month</span></div>' +
+        '<div class="paywall-plan-features">✓ Everything in Standard<br>✓ Private briefings<br>✓ Analyst Q&A</div>' +
+      '</div>' +
+    '</div>' +
+    '<button class="paywall-btn" onclick="navigate(\'account\')">Subscribe Now</button>' +
+    '<div class="paywall-login">' + (isLoggedIn() ? '' : 'Already subscribed? <span onclick="navigate(\'login\')">Log in</span>') + '</div>' +
+  '</div>';
+}
+
 function openArticle(id) {
   var all = getResearch().concat(getNewsletters());
   var a = all.find(function(x){ return x.id===id; }); if (!a) return;
@@ -577,14 +672,26 @@ function openArticle(id) {
   document.getElementById('articleMeta').textContent = a.author+' · '+formatDate(a.date);
   navigate('article');
   var body = document.getElementById('articleBody');
-  if (!a.pdfUrl) { body.innerHTML = a.body||'<p>No content.</p>'; return; }
+  if (!a.pdfUrl) {
+    // Base articles - show with paywall if not paid
+    if (!isPaidUser()) {
+      var preview = (a.body||'').substring(0, 300) + '...';
+      body.innerHTML = '<div class="paywall-overlay" style="max-height:200px;overflow:hidden;">' + preview + '</div>';
+      showPaywall(body);
+    } else {
+      body.innerHTML = a.body||'<p>No content.</p>';
+    }
+    return;
+  }
   body.innerHTML = '<p style="color:#aaa;font-size:13px;text-align:center;padding:40px 0;">⏳ Loading…</p>';
   var tryRender = function() {
     if (!initPdfJs()) { setTimeout(tryRender, 300); return; }
     pdfjsLib.getDocument(a.pdfUrl).promise.then(function(pdf) {
       body.innerHTML = '';
+      // Free users: only first page. Paid: all pages.
+      var maxPages = isPaidUser() ? pdf.numPages : 1;
       var chain = Promise.resolve();
-      for (var i=1;i<=pdf.numPages;i++) {
+      for (var i=1;i<=maxPages;i++) {
         (function(n){ chain=chain.then(function(){ return pdf.getPage(n).then(function(page){
           var vp=page.getViewport({scale:1.8}), cv=document.createElement('canvas');
           cv.width=vp.width; cv.height=vp.height;
@@ -593,6 +700,15 @@ function openArticle(id) {
           return page.render({canvasContext:cv.getContext('2d'),viewport:vp}).promise;
         }); }); })(i);
       }
+      chain.then(function() {
+        if (!isPaidUser() && pdf.numPages > 1) {
+          // Add blur overlay on last canvas
+          var canvases = body.querySelectorAll('canvas');
+          var last = canvases[canvases.length-1];
+          if (last) { last.style.filter='blur(4px)'; last.style.userSelect='none'; }
+          showPaywall(body);
+        }
+      });
       chain.catch(function(e){ body.innerHTML+='<p style="color:#c00;">Error: '+e.message+'</p>'; });
     }).catch(function(e){ body.innerHTML='<p style="color:#c00;">Could not load PDF: '+e.message+'</p>'; });
   };
@@ -657,12 +773,59 @@ async function logout() {
 
 function continueAsGuest() { navigate('home'); }
 
-function subscribeNewsletter() {
+const RESEND_KEY = 're_HbUPYQS7_HBj9JabTuFgM5ssfjNquVLb2';
+
+async function subscribeNewsletter() {
   var name = document.getElementById('nlName').value.trim();
   var email = document.getElementById('nlEmail').value.trim();
   if (!name||!email) { alert('Please enter your name and email.'); return; }
-  document.getElementById('nlSuccess').style.display='block';
-  document.getElementById('nlName').value=''; document.getElementById('nlEmail').value='';
+  var btn = document.querySelector('.nl-submit-btn');
+  btn.textContent = 'Subscribing…'; btn.disabled = true;
+  try {
+    var res = await sb.from('subscribers').insert({ name: name, email: email });
+    if (res.error && res.error.code === '23505') {
+      // already subscribed - still show success
+    } else if (res.error) {
+      throw new Error(res.error.message);
+    }
+    document.getElementById('nlSuccess').style.display='block';
+    document.getElementById('nlName').value='';
+    document.getElementById('nlEmail').value='';
+  } catch(e) {
+    alert('Subscription error: ' + e.message);
+  }
+  btn.textContent = 'Subscribe Now →'; btn.disabled = false;
+}
+
+async function sendNewsletterEmail(title, excerpt, pdfUrl) {
+  try {
+    var res = await sb.from('subscribers').select('email, name');
+    if (res.error || !res.data || !res.data.length) return;
+    for (var i = 0; i < res.data.length; i++) {
+      var sub = res.data[i];
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + RESEND_KEY },
+        body: JSON.stringify({
+          from: 'Han Insights <onboarding@resend.dev>',
+          reply_to: 'selina.han01@gmail.com',
+          to: sub.email,
+          subject: 'New Issue: ' + title,
+          html: '<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;padding:40px 20px;">' +
+            '<p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#999;">Han Insights Newsletter</p>' +
+            '<h1 style="font-size:28px;margin:12px 0 16px;font-family:Georgia,serif;">' + title + '</h1>' +
+            '<p style="color:#555;font-size:14px;line-height:1.8;margin-bottom:28px;">' + excerpt + '</p>' +
+            '<a href="' + pdfUrl + '" style="display:inline-block;padding:13px 32px;background:#111111;color:white;text-decoration:none;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">Read Full Issue</a>' +
+            '<hr style="margin:40px 0;border:none;border-top:1px solid #eee;">' +
+            '<p style="font-size:11px;color:#aaa;">You received this because you subscribed to Han Insights Newsletter.</p>' +
+            '</div>'
+        })
+      });
+    }
+    console.log('Emails sent to ' + res.data.length + ' subscribers');
+  } catch(e) {
+    console.warn('Email error:', e.message);
+  }
 }
 
 // ===== NAVIGATE =====
@@ -799,7 +962,7 @@ async function handleSubmit(type) {
     var ins=await sb.from('articles').insert({id,title,author,tag,excerpt,pdf_url:pdfUrl,pub_date:new Date(pubDate).toISOString(),type});
     if (ins.error) throw new Error('Database: '+ins.error.message);
     var item={id,tag,title,author,date:new Date(pubDate),excerpt,pdfUrl,type};
-    if (type==='research') sbArticles.unshift(item); else sbNewsletters.unshift(item);
+    if (type==='research') sbArticles.unshift(item); else { sbNewsletters.unshift(item); sendNewsletterEmail(title, excerpt, pdfUrl); }
     document.getElementById(p+'-title').value=''; document.getElementById(p+'-author').value='';
     document.getElementById(p+'-tag').value=''; document.getElementById(p+'-excerpt').value='';
     document.getElementById(p+'-date').value=''; document.getElementById(p+'-filename').style.display='none';
