@@ -610,7 +610,6 @@ async function loadContent() {
   } catch(e) { console.warn('Load:', e.message); }
   renderCards(); renderResearch(); renderNewsletter(); renderSubmittedLists();
 }
-
 function getResearch() { return sbArticles.concat(BASE_ARTICLES).sort(function(a,b){ return b.date-a.date; }); }
 function getNewsletters() { return sbNewsletters.slice().sort(function(a,b){ return b.date-a.date; }); }
 function formatDate(d) { var x=new Date(d); return isNaN(x)?String(d):x.toLocaleDateString(); }
@@ -676,24 +675,20 @@ function openArticle(id) {
   document.getElementById('articleMeta').textContent = a.author+' · '+formatDate(a.date);
   navigate('article');
   var body = document.getElementById('articleBody');
+  var isNewsletter = a.type === 'newsletter';
+
   if (!a.pdfUrl) {
-    // Base articles - show with paywall if not paid
-    if (!isPaidUser()) {
-      var preview = (a.body||'').substring(0, 300) + '...';
-      body.innerHTML = '<div class="paywall-overlay" style="max-height:200px;overflow:hidden;">' + preview + '</div>';
-      showPaywall(body);
-    } else {
-      body.innerHTML = a.body||'<p>No content.</p>';
-    }
+    body.innerHTML = a.body||'<p>No content.</p>';
     return;
   }
+
   body.innerHTML = '<p style="color:#aaa;font-size:13px;text-align:center;padding:40px 0;">⏳ Loading…</p>';
   var tryRender = function() {
     if (!initPdfJs()) { setTimeout(tryRender, 300); return; }
     pdfjsLib.getDocument(a.pdfUrl).promise.then(function(pdf) {
       body.innerHTML = '';
-      // Free users: only first page. Paid: all pages.
-      var maxPages = isPaidUser() ? pdf.numPages : 1;
+      // Newsletter: always free. Research: page 1 free, rest needs payment.
+      var maxPages = (isNewsletter || isPaidUser()) ? pdf.numPages : 1;
       var chain = Promise.resolve();
       for (var i=1;i<=maxPages;i++) {
         (function(n){ chain=chain.then(function(){ return pdf.getPage(n).then(function(page){
@@ -705,11 +700,10 @@ function openArticle(id) {
         }); }); })(i);
       }
       chain.then(function() {
-        if (!isPaidUser() && pdf.numPages > 1) {
-          // Add blur overlay on last canvas
+        if (!isNewsletter && !isPaidUser() && pdf.numPages > 1) {
           var canvases = body.querySelectorAll('canvas');
           var last = canvases[canvases.length-1];
-          if (last) { last.style.filter='blur(4px)'; last.style.userSelect='none'; }
+          if (last) { last.style.filter='blur(6px)'; last.style.userSelect='none'; }
           showPaywall(body);
         }
       });
