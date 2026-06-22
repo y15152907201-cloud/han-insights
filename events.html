@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events — Han Insights</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="header" id="mainHeader">
+  <div class="header-left" onclick="window.location.href='index.html'">
+    <span style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;">Han Insights</span>
+  </div>
+  <nav class="header-nav">
+    <a href="index.html">Research</a>
+    <a href="index.html">Newsletter</a>
+    <a class="active">Education</a>
+    <a href="index.html">About Us</a>
+  </nav>
+  <div class="header-right">
+    <span class="guest-badge" id="headerGuestBadge">Guest</span>
+    <div class="dropdown" id="userDropdown">
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="toggleDropdown()">
+        <div class="avatar-btn" id="headerAvatar"><span style="font-size:16px;">👤</span></div>
+        <div class="menu-icon"><span></span><span></span><span></span></div>
+      </div>
+      <div class="dropdown-panel" id="dropdownPanel"></div>
+    </div>
+  </div>
+</header>
+
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<div class="page-hero">
+  <p class="page-hero-label">Han Insights — Education</p>
+  <h1 class="page-hero-title">Events</h1>
+  <p class="page-hero-sub">Workshops, seminars, and speaking engagements — learn alongside leading practitioners.</p>
+</div>
+
+
+<!-- ============================================================
+     CALENDAR
+     ============================================================ -->
+<div class="cal-wrap">
+  <div class="cal-header">
+    <button class="cal-nav" onclick="calMove(-1)">&#8592;</button>
+    <span class="cal-title" id="calTitle"></span>
+    <button class="cal-nav" onclick="calMove(1)">&#8594;</button>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-dow">SUN</div>
+    <div class="cal-dow">MON</div>
+    <div class="cal-dow">TUE</div>
+    <div class="cal-dow">WED</div>
+    <div class="cal-dow">THU</div>
+    <div class="cal-dow">FRI</div>
+    <div class="cal-dow">SAT</div>
+  </div>
+  <div class="cal-grid" id="calDays"></div>
+
+  <!-- Detail panel: appears below calendar when a date is clicked -->
+  <div class="cal-detail" id="calDetail" style="display:none;">
+    <div class="cal-detail-inner" id="calDetailInner"></div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MAIN CONTENT
+     ============================================================ -->
+<div class="inner-section">
+
+  <!-- MY REGISTRATIONS: only visible when logged in -->
+  <div id="evMyBlock" style="display:none;">
+    <p class="section-label">My Registrations</p>
+    <div class="ev-my-row" id="evMyGrid"></div>
+    <div class="ev-sep"></div>
+  </div>
+
+  <!-- TWO COLUMNS: 2fr | divider | 1fr -->
+  <div class="ev-columns">
+
+    <div class="ev-col-upcoming">
+      <p class="section-label">Upcoming Events</p>
+      <div class="ev-upcoming-cards" id="evUpcomingCol"></div>
+    </div>
+
+    <div class="ev-col-divider"></div>
+
+    <div class="ev-col-past">
+      <p class="section-label">Past Events</p>
+      <div class="ev-past-cards" id="evPastCol"></div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL: REGISTER
+     ============================================================ -->
+<div class="ev-overlay" id="evOverlay" onclick="evCloseModal(event)">
+  <div class="ev-modal">
+    <button class="ev-modal-close" onclick="evCloseModalDirect()">✕</button>
+    <div class="ev-modal-header">
+      <p class="ev-modal-label">Register for Event</p>
+      <h2 class="ev-modal-title" id="evModalTitle"></h2>
+      <div class="ev-modal-meta" id="evModalMeta"></div>
+    </div>
+    <div class="ev-modal-body">
+      <div id="evFormSection">
+        <h3 class="ev-form-heading">Your Details</h3>
+        <p class="ev-form-sub">Fill in your information and we'll send a confirmation to your email.</p>
+        <div class="ev-error" id="evFormError"></div>
+        <div class="ev-field">
+          <label>Full Name *</label>
+          <input type="text" id="evName" placeholder="Jane Smith">
+        </div>
+        <div class="ev-field">
+          <label>Email Address *</label>
+          <input type="email" id="evEmail" placeholder="jane@example.com">
+        </div>
+        <div class="ev-field">
+          <label>Phone Number</label>
+          <input type="tel" id="evPhone" placeholder="+82 10 0000 0000">
+        </div>
+        <button class="ev-submit-btn" id="evSubmitBtn" onclick="evSubmit()">Confirm Registration →</button>
+      </div>
+      <div class="ev-success" id="evSuccess">
+        <div class="ev-success-icon">✉️</div>
+        <h3 class="ev-success-title">You're Registered!</h3>
+        <p class="ev-success-sub">A confirmation has been sent to <strong id="evSuccessEmail"></strong>.<br>We look forward to seeing you there.</p>
+        <button class="ev-done-btn" onclick="evCloseModalDirect()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     MODAL: LOGIN
+     ============================================================ -->
+<div class="ev-overlay" id="loginOverlay" onclick="loginCloseModal(event)">
+  <div class="ev-modal">
+    <button class="ev-modal-close" onclick="document.getElementById('loginOverlay').classList.remove('open');document.body.style.overflow=''">✕</button>
+    <div class="ev-modal-header">
+      <p class="ev-modal-label">Han Insights</p>
+      <h2 class="ev-modal-title" id="loginModalTitle">Sign In</h2>
+      <p style="font-size:13px;opacity:0.7;margin-top:6px;" id="loginModalSub">Welcome back to Han Insights.</p>
+    </div>
+    <div class="ev-modal-body">
+      <div class="ev-error" id="loginError"></div>
+      <div style="display:none;background:#f0faf0;border:1px solid #b2dfb2;padding:10px 14px;font-size:13px;color:#2a6e2a;margin-bottom:16px;" id="loginSuccessMsg"></div>
+      <button class="google-btn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+      <div class="login-divider">or</div>
+      <div class="ev-field"><label>Email</label><input type="email" id="loginEmail" placeholder="your@email.com"></div>
+      <div class="ev-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
+      <button class="ev-submit-btn" onclick="submitAuth()" id="loginBtn">Sign In</button>
+      <div class="login-toggle">
+        <span id="loginToggleText">Don't have an account? </span>
+        <span onclick="toggleAuthMode()" id="loginToggleLink">Sign up</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer>
+  <span>© 2026 Han Insights. All rights reserved.</span>
+  <div style="display:flex;gap:24px;">
+    <a href="index.html">About</a>
+    <a href="index.html">Newsletter</a>
+    <a href="#">Privacy</a>
+  </div>
+</footer>
+
+
+<!-- ============================================================
+     STYLE
+     ============================================================ -->
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --dark-burgundy: #1a0505;
+    --white: #ffffff;
+    --black: #111111;
+    --border: #e0e0e0;
+    --vip-gold: #c9a84c;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--black); padding-top: 57px; }
+
+  /* ── HEADER ── */
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 14px 36px; border-bottom: 1px solid var(--border); position: fixed; top: 0; left: 0; right: 0; background: white; z-index: 100; transition: box-shadow 0.35s ease; }
+  .header.scrolled { box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+  .header-left { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .header-nav { display: flex; gap: 44px; align-items: center; }
+  .header-nav a { text-decoration: none; color: var(--black); font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; transition: opacity 0.2s; cursor: pointer; }
+  .header-nav a:hover { opacity: 0.5; }
+  .header-nav a.active { border-bottom: 2px solid var(--black); padding-bottom: 2px; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .avatar-btn { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid #ccc; cursor: pointer; background: #ebebeb; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+  .menu-icon { cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 4px; }
+  .menu-icon span { display: block; width: 18px; height: 1.5px; background: var(--black); }
+  .guest-badge { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #999; border: 1px solid #ddd; padding: 4px 10px; border-radius: 2px; }
+  .dropdown { position: relative; }
+  .dropdown-panel { display: none; position: absolute; top: calc(100% + 12px); right: 0; background: white; border: 1px solid var(--border); min-width: 200px; z-index: 999; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  .dropdown-panel a { display: block; padding: 11px 16px; font-size: 13px; color: var(--black); text-decoration: none; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; }
+  .dropdown-panel a:last-child { border-bottom: none; }
+  .dropdown-panel a:hover { background: #f8f8f8; }
+  .dropdown.open .dropdown-panel { display: block; }
+
+  /* ── HERO ── */
+  .page-hero { background: var(--dark-burgundy); padding: 80px 36px 60px; color: white; }
+  .page-hero-label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.6; margin-bottom: 16px; }
+  .page-hero-title { font-family: 'Playfair Display', serif; font-size: 48px; font-weight: 700; line-height: 1.15; max-width: 600px; }
+  .page-hero-sub { font-size: 15px; opacity: 0.7; margin-top: 16px; max-width: 500px; line-height: 1.6; }
+
+  /* ── INNER ── */
+  .inner-section { padding: 64px 36px 80px; max-width: 1200px; margin: 0 auto; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #888; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+  .ev-sep { border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* ── MY REGISTRATIONS ROW ── */
+  .ev-my-row { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── TWO COLUMNS: upcoming big (2fr), past small (1fr) ── */
+  .ev-columns { display: grid; grid-template-columns: 2fr 1px 1fr; gap: 0 48px; align-items: start; }
+  .ev-col-upcoming { min-width: 0; }
+  .ev-col-past     { min-width: 0; }
+  .ev-col-divider  { background: var(--border); }
+
+  .ev-upcoming-cards { display: flex; flex-direction: column; gap: 24px; }
+  .ev-past-cards     { display: flex; flex-direction: column; gap: 16px; }
+
+  /* ── EMPTY ── */
+  .ev-empty { border: 1px solid var(--border); padding: 40px 24px; text-align: center; color: #aaa; font-size: 13px; background: #fafafa; }
+
+  /* ── UPCOMING CARD (large) ── */
+  .ev-card-up {
+    background: white;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .ev-card-up:hover { box-shadow: 0 8px 28px rgba(0,0,0,0.09); transform: translateY(-2px); }
+  .ev-card-up.ev-registered { border: 2px solid var(--dark-burgundy); }
+
+  .ev-card-up .card-top { background: var(--dark-burgundy); color: white; padding: 30px 32px 24px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .ev-card-up .ev-day   { font-family: 'Playfair Display', serif; font-size: 52px; font-weight: 700; line-height: 1; }
+  .ev-card-up .ev-month { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.65; margin-bottom: 3px; }
+  .ev-card-up .ev-year  { font-size: 11px; opacity: 0.45; margin-top: 4px; }
+  .ev-card-up .card-body { padding: 28px 32px 32px; }
+  .ev-card-up .card-tag   { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 8px; }
+  .ev-card-up .card-title { font-family: 'Playfair Display', serif; font-size: 24px; line-height: 1.35; margin-bottom: 10px; color: var(--black); }
+  .ev-card-up .card-meta  { display: flex; gap: 18px; font-size: 13px; color: #aaa; margin-bottom: 14px; flex-wrap: wrap; }
+  .ev-card-up .card-desc  { font-size: 14px; line-height: 1.8; color: #555; margin-bottom: 22px; }
+
+  /* ── PAST CARD (small) ── */
+  .ev-card-past {
+    background: white;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    /* fully readable but visually secondary */
+    opacity: 0.75;
+    transition: opacity 0.2s, box-shadow 0.2s;
+  }
+  .ev-card-past:hover { opacity: 0.92; box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+
+  .ev-card-past .card-top { background: #7a7a7a; color: white; padding: 18px 20px 14px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .ev-card-past .ev-day   { font-family: 'Playfair Display', serif; font-size: 34px; font-weight: 700; line-height: 1; }
+  .ev-card-past .ev-month { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.65; margin-bottom: 2px; }
+  .ev-card-past .ev-year  { font-size: 10px; opacity: 0.45; margin-top: 3px; }
+  .ev-card-past .card-body { padding: 16px 20px 20px; }
+  .ev-card-past .card-tag   { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #999; margin-bottom: 6px; }
+  .ev-card-past .card-title { font-family: 'Playfair Display', serif; font-size: 16px; line-height: 1.35; margin-bottom: 8px; color: #444; }
+  .ev-card-past .card-meta  { display: flex; gap: 12px; font-size: 11px; color: #bbb; margin-bottom: 10px; flex-wrap: wrap; }
+  .ev-card-past .card-desc  { font-size: 12px; line-height: 1.7; color: #888; margin-bottom: 14px; }
+
+  /* ── BADGES (shared) ── */
+  .ev-badges { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+  .ev-badge { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 9px; font-weight: 500; }
+  .ev-badge-type     { background: rgba(255,255,255,0.15); color: white; }
+  .ev-badge-upcoming { background: white; color: var(--dark-burgundy); }
+  .ev-badge-past     { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+  .ev-badge-reg      { background: var(--vip-gold); color: white; }
+
+  /* ── CTA (shared) ── */
+  .ev-cta { display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--black); background: none; border: none; border-bottom: 1px solid var(--black); padding-bottom: 2px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; }
+  .ev-cta:hover { opacity: 0.5; }
+  .ev-cta-sm { font-size: 11px; color: #888; border-bottom-color: #ccc; }
+  .ev-cta-sm:hover { opacity: 0.6; }
+  .ev-cta-ended { color: #ccc; border-bottom-color: #e0e0e0; cursor: default; }
+  .ev-cta-ended:hover { opacity: 1; }
+  .ev-cta-registered { color: var(--dark-burgundy); border-bottom-color: var(--dark-burgundy); cursor: default; }
+  .ev-cta-registered:hover { opacity: 1; }
+
+  /* ── OVERLAY + MODAL ── */
+  .ev-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.40); z-index: 500; align-items: center; justify-content: center; padding: 20px; }
+  .ev-overlay.open { display: flex; }
+  .ev-modal { background: white; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 0 4px 40px rgba(0,0,0,0.14); animation: evModalIn 0.25s ease; }
+  @keyframes evModalIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .ev-modal-close { position: absolute; top: 14px; right: 18px; background: none; border: none; color: white; font-size: 22px; cursor: pointer; opacity: 0.65; line-height: 1; z-index: 10; }
+  .ev-modal-close:hover { opacity: 1; }
+  .ev-modal-header { background: var(--dark-burgundy); color: white; padding: 36px 40px 28px; }
+  .ev-modal-label  { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.6; margin-bottom: 10px; }
+  .ev-modal-title  { font-family: 'Playfair Display', serif; font-size: 24px; line-height: 1.3; margin-bottom: 14px; font-weight: 700; }
+  .ev-modal-meta   { display: flex; gap: 18px; font-size: 13px; opacity: 0.75; flex-wrap: wrap; }
+  .ev-modal-body   { padding: 36px 40px 40px; }
+  .ev-form-heading { font-family: 'Playfair Display', serif; font-size: 22px; margin-bottom: 6px; }
+  .ev-form-sub     { font-size: 14px; color: #666; margin-bottom: 28px; line-height: 1.7; }
+  .ev-error { background: #fff0f0; border: 1px solid #fcc; color: #c00; padding: 10px 14px; font-size: 13px; margin-bottom: 16px; display: none; }
+  .ev-field { margin-bottom: 20px; }
+  .ev-field label { display: block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 6px; }
+  .ev-field input { width: 100%; padding: 12px 14px; border: 1px solid var(--border); background: white; font-size: 14px; font-family: 'DM Sans', sans-serif; outline: none; color: var(--black); transition: border-color 0.2s; }
+  .ev-field input:focus { border-color: var(--black); }
+  .ev-submit-btn { width: 100%; padding: 14px; background: var(--black); color: white; border: none; font-size: 13px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background 0.2s; margin-top: 8px; }
+  .ev-submit-btn:hover { background: #333; }
+  .ev-submit-btn:disabled { background: #aaa; cursor: not-allowed; }
+  .ev-success { display: none; text-align: center; padding: 8px 0 4px; }
+  .ev-success-icon  { font-size: 40px; margin-bottom: 14px; }
+  .ev-success-title { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 10px; }
+  .ev-success-sub   { font-size: 14px; color: #666; line-height: 1.75; }
+  .ev-done-btn { display: inline-block; margin-top: 22px; padding: 12px 32px; background: var(--black); color: white; border: none; cursor: pointer; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-family: 'DM Sans', sans-serif; transition: background 0.2s; }
+  .ev-done-btn:hover { background: #333; }
+
+  /* ── LOGIN EXTRAS ── */
+  .google-btn { width: 100%; padding: 13px; background: white; color: #333; border: 1.5px solid var(--border); cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s; margin-bottom: 4px; font-family: 'DM Sans', sans-serif; }
+  .google-btn:hover { background: #f8f8f8; }
+  .login-divider { display: flex; align-items: center; gap: 12px; margin: 18px 0; color: #ccc; font-size: 12px; }
+  .login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .login-toggle { margin-top: 14px; text-align: center; font-size: 13px; color: #888; }
+  .login-toggle span { color: var(--black); cursor: pointer; border-bottom: 1px solid var(--black); }
+
+  /* ── CALENDAR ── */
+  .cal-wrap { max-width: 1200px; margin: 0 auto; padding: 56px 36px 0; }
+
+  .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .cal-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--black); letter-spacing: 0.02em; }
+  .cal-nav { background: none; border: 1px solid var(--border); color: var(--black); width: 36px; height: 36px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .cal-nav:hover { background: var(--black); color: white; border-color: var(--black); }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); border-left: 1px solid var(--border); border-top: 1px solid var(--border); }
+
+  .cal-dow { padding: 10px 0; text-align: center; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: #aaa; font-weight: 500; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: #fafafa; }
+
+  .cal-day { position: relative; height: 90px; padding: 10px 10px 8px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: white; cursor: default; transition: background 0.15s; overflow:hidden; }
+  .cal-day.cal-other { background: #fafafa; }
+  .cal-day.cal-today { background: #fff8f8; }
+  .cal-day.cal-has-event { cursor: pointer; }
+  .cal-day.cal-has-event:hover { background: #fff3f3; }
+  .cal-day.cal-selected { background: #fff0f0; }
+
+  .cal-day-num { font-size: 13px; color: #bbb; font-weight: 400; line-height: 1; margin-bottom: 6px; }
+  .cal-day.cal-this-month .cal-day-num { color: var(--black); }
+  .cal-day.cal-today .cal-day-num { color: var(--dark-burgundy); font-weight: 700; }
+
+  /* red circle on event dates */
+  .cal-dot-wrap { display: flex; flex-direction: column; gap: 3px; }
+  .cal-event-dot {
+    position: relative;
+    padding-left: 11px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 10px;
+    line-height: 1.2;
+    color: var(--dark-burgundy);
+    font-weight: 500;
+    word-break: break-word;
+  }
+  .cal-event-dot::before {
+    content: '';
+    position:absolute;
+    left:0;
+    top:4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--dark-burgundy);
+  }
+  .cal-event-dot.cal-dot-past { color: #aaa; }
+  .cal-event-dot.cal-dot-past::before { background: #bbb; }
+
+  /* red circle on the number itself for event days */
+  .cal-day.cal-has-event .cal-day-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--dark-burgundy);
+    color: var(--dark-burgundy);
+    font-weight: 700;
+  }
+  .cal-day.cal-has-event.cal-dot-past-day .cal-day-num {
+    border-color: #bbb;
+    color: #aaa;
+  }
+
+  /* hover tooltip */
+  .cal-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dark-burgundy);
+    color: white;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+    white-space: nowrap;
+    z-index: 50;
+    pointer-events: none;
+    max-width: 220px;
+    white-space: normal;
+    text-align: center;
+  }
+  .cal-tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--dark-burgundy); }
+  .cal-day:hover .cal-tooltip { display: block; }
+
+  /* detail panel below calendar */
+  .cal-detail { border: 1px solid var(--border); margin-top: 0; border-top: none; background: white; }
+  .cal-detail-inner { padding: 28px 32px; }
+  .cal-detail-date { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #888; margin-bottom: 20px; }
+  .cal-detail-event { border-left: 3px solid var(--dark-burgundy); padding: 16px 20px; margin-bottom: 16px; background: #fafafa; }
+  .cal-detail-event.past { border-left-color: #ccc; }
+  .cal-detail-event:last-child { margin-bottom: 0; }
+  .cal-detail-type { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 4px; }
+  .cal-detail-title { font-family: 'Playfair Display', serif; font-size: 18px; margin-bottom: 8px; color: var(--black); }
+  .cal-detail-meta { font-size: 12px; color: #aaa; margin-bottom: 10px; display: flex; gap: 16px; flex-wrap: wrap; }
+  .cal-detail-desc { font-size: 13px; color: #555; line-height: 1.7; margin-bottom: 14px; }
+  .cal-detail-cta { display: inline-block; font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--black); background: none; border: none; border-bottom: 1px solid var(--black); padding-bottom: 2px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity 0.2s; }
+  .cal-detail-cta:hover { opacity: 0.5; }
+  .cal-detail-cta.ended { color: #bbb; border-bottom-color: #ddd; cursor: default; }
+  .cal-detail-cta.ended:hover { opacity: 1; }
+
+  /* ── FOOTER ── */
+  footer { border-top: 1px solid var(--border); padding: 32px 36px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #888; }
+  footer a { color: #888; text-decoration: none; cursor: pointer; }
+  footer a:hover { color: var(--black); }
+
+  @media (max-width: 900px) {
+    .ev-columns { grid-template-columns: 1fr; }
+    .ev-col-divider { display: none; }
+    .inner-section { padding: 40px 18px 60px; }
+    .page-hero { padding: 56px 18px 40px; }
+    .page-hero-title { font-size: 34px; }
+    .ev-modal-header { padding: 26px 22px 20px; }
+    .ev-modal-body   { padding: 26px 22px 30px; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+    .header { padding: 12px 18px; }
+    .header-nav { display: none; }
+  }
+</style>
+
+
+<!-- ============================================================
+     SCRIPT
+     ============================================================ -->
+<script>
+  const SUPABASE_URL = 'https://iofzbkiafkeqchjtoppt.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlvZnpia2lhZmtlcWNoanRvcHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTQ3ODMsImV4cCI6MjA5NjM5MDc4M30.xaUyd2iYthuLbTGyqdI8U1gLLv3TXqiuUSnvsou94g4';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const EV_EVENTS = [
+    { id:'ev1', date:'2026-07-18', title:'Global Supply Chain Risk: What Executives Need to Know', type:'Webinar',    location:'Online', time:'10:00 AM KST', description:'A live session covering emerging disruptions in Asia-Pacific supply chains, with case-based analysis and a Q&A segment.' },
+    { id:'ev2', date:'2026-08-05', title:'Korea–EU Trade Policy Briefing',                          type:'Seminar',    location:'Seoul',  time:'2:00 PM KST',  description:'An in-depth briefing on recent shifts in bilateral trade policy and what they mean for mid-sized Korean exporters.' },
+    { id:'ev3', date:'2026-09-22', title:'Annual Economic Outlook Conference',                       type:'Conference', location:'Seoul',  time:'9:00 AM KST',  description:"Han Insights' flagship annual event featuring research presentations, panel discussions, and networking sessions." },
+    { id:'ev4', date:'2026-03-14', title:'Tech Sector Valuation Workshop',                           type:'Workshop',   location:'Online', time:'11:00 AM KST', description:'A practical workshop on valuation methodologies for early-stage technology companies in the Korean market.' },
+    { id:'ev5', date:'2026-01-20', title:'2026 Market Outlook Briefing',                             type:'Webinar',    location:'Online', time:'10:00 AM KST', description:"Han Insights' annual January briefing covering macro trends, sector outlooks, and key risks to watch." },
+    { id:'ev6', date:'2025-11-08', title:'Northeast Asia Trade Dynamics',                            type:'Seminar',    location:'Seoul',  time:'3:00 PM KST',  description:'Examining trade flows, geopolitical pressures, and strategic opportunities across the Northeast Asian corridor.' }
+  ];
+
+  const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  let currentUser = null;
+  let evRegistrations = [];
+  let evActive = null;
+  let authMode = 'signin';
+
+  // ── AUTH ──
+  async function initAuth() {
+    const s = await sb.auth.getSession();
+    if (s.data.session) currentUser = s.data.session.user;
+    sb.auth.onAuthStateChange(function(event, session) {
+      currentUser = session ? session.user : null;
+      renderAuthUI();
+      if (event === 'SIGNED_IN') {
+        document.getElementById('loginOverlay').classList.remove('open');
+        document.body.style.overflow = '';
+        evRenderAll();
+      }
+    });
+    renderAuthUI();
+  }
+
+  function isLoggedIn() { return currentUser !== null; }
+
+  function renderAuthUI() {
+    document.getElementById('headerGuestBadge').style.display = isLoggedIn() ? 'none' : 'inline';
+    const av    = document.getElementById('headerAvatar');
+    const panel = document.getElementById('dropdownPanel');
+    if (isLoggedIn()) {
+      const meta = currentUser.user_metadata;
+      av.innerHTML = meta && meta.avatar_url
+        ? '<img src="'+meta.avatar_url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+        : '<span style="font-size:13px;background:#e8e0d0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;border-radius:50%;">'+(currentUser.email[0].toUpperCase())+'</span>';
+      panel.innerHTML = '<a onclick="window.location.href=\'index.html\'">Back to Home</a><a onclick="logout()" style="color:#c00;">Logout</a>';
+    } else {
+      av.innerHTML = '<span style="font-size:16px;">👤</span>';
+      panel.innerHTML = '<a onclick="openLoginModal()">Login / Sign Up</a><a onclick="window.location.href=\'index.html\'">Back to Home</a>';
+    }
+    evRenderAll();
+  }
+
+  async function loginWithGoogle() {
+    await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+  }
+
+  async function submitAuth() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+    if (!email || !pass) { errEl.textContent = 'Please enter email and password.'; errEl.style.display = 'block'; return; }
+    const res = authMode === 'signin'
+      ? await sb.auth.signInWithPassword({ email, password: pass })
+      : await sb.auth.signUp({ email, password: pass });
+    if (res.error) { errEl.textContent = res.error.message; errEl.style.display = 'block'; }
+    else if (authMode === 'signup') { document.getElementById('loginSuccessMsg').textContent = '✓ Account created! Check your email to verify.'; document.getElementById('loginSuccessMsg').style.display = 'block'; }
+  }
+
+  function toggleAuthMode() {
+    authMode = authMode === 'signin' ? 'signup' : 'signin';
+    document.getElementById('loginModalTitle').textContent = authMode === 'signin' ? 'Sign In' : 'Create Account';
+    document.getElementById('loginModalSub').textContent   = authMode === 'signin' ? 'Welcome back to Han Insights.' : 'Join Han Insights today.';
+    document.getElementById('loginBtn').textContent        = authMode === 'signin' ? 'Sign In' : 'Create Account';
+    document.getElementById('loginToggleText').textContent = authMode === 'signin' ? "Don't have an account? " : 'Already have an account? ';
+    document.getElementById('loginToggleLink').textContent = authMode === 'signin' ? 'Sign up' : 'Sign in';
+  }
+
+  async function logout() {
+    await sb.auth.signOut(); currentUser = null;
+    document.getElementById('userDropdown').classList.remove('open');
+    renderAuthUI();
+  }
+
+  function openLoginModal() {
+    document.getElementById('userDropdown').classList.remove('open');
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('loginSuccessMsg').style.display = 'none';
+    document.getElementById('loginEmail').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function loginCloseModal(e) {
+    if (e.target === document.getElementById('loginOverlay')) {
+      document.getElementById('loginOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  function toggleDropdown() { document.getElementById('userDropdown').classList.toggle('open'); }
+  document.addEventListener('click', function(e) { const d = document.getElementById('userDropdown'); if (!d.contains(e.target)) d.classList.remove('open'); });
+  window.addEventListener('scroll', function() { document.getElementById('mainHeader').classList.toggle('scrolled', window.scrollY > 10); });
+
+  // ── EVENTS ──
+  function evIsPast(d) { const t = new Date(); t.setHours(0,0,0,0); return new Date(d+'T00:00:00') < t; }
+  function evIsReg(id) { return evRegistrations.includes(id); }
+
+  async function evLoadRegs() {
+    evRegistrations = [];
+    if (!isLoggedIn()) return;
+    try {
+      const res = await sb.from('event_registrations').select('event_id').eq('user_id', currentUser.id);
+      if (!res.error && res.data) evRegistrations = res.data.map(r => r.event_id);
+    } catch(e) {}
+  }
+
+  // Large upcoming card
+  function evCardUp(ev) {
+    const d   = new Date(ev.date+'T00:00:00');
+    const reg = evIsReg(ev.id);
+    const regBadge = reg ? '<span class="ev-badge ev-badge-reg">✓ Registered</span>' : '';
+    const cta = reg
+      ? '<button class="ev-cta ev-cta-registered" disabled>✓ Registered</button>'
+      : `<button class="ev-cta" onclick="event.stopPropagation();evOpenModal('${ev.id}')">Register Now →</button>`;
+    return `
+      <div class="ev-card-up${reg?' ev-registered':''}" onclick="evOpenModal('${ev.id}')">
+        <div class="card-top">
+          <div class="ev-date-block">
+            <div class="ev-month">${MONTHS[d.getMonth()]}</div>
+            <div class="ev-day">${d.getDate()}</div>
+            <div class="ev-year">${d.getFullYear()}</div>
+          </div>
+          <div class="ev-badges">
+            <span class="ev-badge ev-badge-type">${ev.type}</span>
+            <span class="ev-badge ev-badge-upcoming">Upcoming</span>
+            ${regBadge}
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">${ev.type} · ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}</div>
+          <div class="card-title">${ev.title}</div>
+          <div class="card-meta"><span>📍 ${ev.location}</span><span>🕐 ${ev.time}</span></div>
+          <p class="card-desc">${ev.description}</p>
+          ${cta}
+        </div>
+      </div>`;
+  }
+
+  // Small past card — all content visible, just smaller + muted
+  function evCardPast(ev) {
+    const d   = new Date(ev.date+'T00:00:00');
+    const reg = evIsReg(ev.id);
+    const regBadge = reg ? '<span class="ev-badge ev-badge-reg" style="font-size:9px;padding:2px 7px;">✓ Registered</span>' : '';
+    return `
+      <div class="ev-card-past">
+        <div class="card-top">
+          <div class="ev-date-block">
+            <div class="ev-month">${MONTHS[d.getMonth()]}</div>
+            <div class="ev-day">${d.getDate()}</div>
+            <div class="ev-year">${d.getFullYear()}</div>
+          </div>
+          <div class="ev-badges">
+            <span class="ev-badge ev-badge-type">${ev.type}</span>
+            <span class="ev-badge ev-badge-past">Past</span>
+            ${regBadge}
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-tag">${ev.type} · ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}</div>
+          <div class="card-title">${ev.title}</div>
+          <div class="card-meta"><span>📍 ${ev.location}</span><span>🕐 ${ev.time}</span></div>
+          <p class="card-desc">${ev.description}</p>
+          <button class="ev-cta ev-cta-sm ev-cta-ended" disabled>Event Ended</button>
+        </div>
+      </div>`;
+  }
+
+  async function evRenderAll() {
+    await evLoadRegs();
+    const upcoming = EV_EVENTS.filter(e => !evIsPast(e.date)).sort((a,b) => new Date(a.date)-new Date(b.date));
+    const past     = EV_EVENTS.filter(e =>  evIsPast(e.date)).sort((a,b) => new Date(b.date)-new Date(a.date));
+    const myRegs   = EV_EVENTS.filter(e =>  evIsReg(e.id));
+
+    const myBlock = document.getElementById('evMyBlock');
+    if (isLoggedIn() && myRegs.length) {
+      myBlock.style.display = 'block';
+      document.getElementById('evMyGrid').innerHTML = myRegs.map(evCardUp).join('');
+    } else { myBlock.style.display = 'none'; }
+
+    document.getElementById('evUpcomingCol').innerHTML = upcoming.length
+      ? upcoming.map(evCardUp).join('')
+      : '<div class="ev-empty">No upcoming events — check back soon.</div>';
+
+    document.getElementById('evPastCol').innerHTML = past.length
+      ? past.map(evCardPast).join('')
+      : '<div class="ev-empty">No past events on record.</div>';
+  }
+
+  // ── MODAL ──
+  function evOpenModal(id) {
+    evActive = EV_EVENTS.find(e => e.id === id);
+    if (!evActive || evIsPast(evActive.date)) return;
+    const d = new Date(evActive.date+'T00:00:00');
+    document.getElementById('evModalTitle').textContent = evActive.title;
+    document.getElementById('evModalMeta').innerHTML = `<span>📍 ${evActive.location}</span><span>🕐 ${evActive.time}</span><span>📅 ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}</span>`;
+    document.getElementById('evName').value  = currentUser?.user_metadata?.full_name || '';
+    document.getElementById('evEmail').value = currentUser?.email || '';
+    document.getElementById('evPhone').value = '';
+    document.getElementById('evFormError').style.display = 'none';
+    document.getElementById('evFormSection').style.display = 'block';
+    document.getElementById('evSuccess').style.display = 'none';
+    document.getElementById('evSubmitBtn').disabled = false;
+    document.getElementById('evSubmitBtn').textContent = 'Confirm Registration →';
+    document.getElementById('evOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function evCloseModal(e) { if (e.target === document.getElementById('evOverlay')) evCloseModalDirect(); }
+  function evCloseModalDirect() { document.getElementById('evOverlay').classList.remove('open'); document.body.style.overflow = ''; }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      evCloseModalDirect();
+      document.getElementById('loginOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+
+  async function evSubmit() {
+    const name  = document.getElementById('evName').value.trim();
+    const email = document.getElementById('evEmail').value.trim();
+    const phone = document.getElementById('evPhone').value.trim();
+    const errEl = document.getElementById('evFormError');
+    errEl.style.display = 'none';
+    if (!name)  { errEl.textContent = 'Please enter your full name.';     errEl.style.display = 'block'; return; }
+    if (!email) { errEl.textContent = 'Please enter your email address.'; errEl.style.display = 'block'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Please enter a valid email.'; errEl.style.display = 'block'; return; }
+    const btn = document.getElementById('evSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    try {
+      await sb.from('event_registrations').insert({ event_id: evActive.id, event_title: evActive.title, event_date: evActive.date, name, email, phone: phone||null, user_id: currentUser?.id||null });
+      if (!evRegistrations.includes(evActive.id)) evRegistrations.push(evActive.id);
+      // TODO: plug in Resend email here
+      document.getElementById('evSuccessEmail').textContent = email;
+      document.getElementById('evFormSection').style.display = 'none';
+      document.getElementById('evSuccess').style.display = 'block';
+      evRenderAll();
+    } catch(err) {
+      errEl.textContent = 'Submission failed: ' + err.message; errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Confirm Registration →';
+    }
+  }
+
+  // ── CALENDAR ──
+  const CAL_MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  let calYear, calMonth;
+
+  function calInit() {
+    const now = new Date();
+    calYear  = now.getFullYear();
+    calMonth = now.getMonth();
+    calRender();
+  }
+
+  function calMove(dir) {
+    calMonth += dir;
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    if (calMonth < 0)  { calMonth = 11; calYear--; }
+    document.getElementById('calDetail').style.display = 'none';
+    calRender();
+  }
+
+  function calRender() {
+    document.getElementById('calTitle').textContent = CAL_MONTHS_LONG[calMonth] + ' ' + calYear;
+
+    const today    = new Date(); today.setHours(0,0,0,0);
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const daysInPrev  = new Date(calYear, calMonth, 0).getDate();
+
+    // Build a map: "YYYY-MM-DD" → [events]
+    const evMap = {};
+    EV_EVENTS.forEach(ev => {
+      const key = ev.date;
+      if (!evMap[key]) evMap[key] = [];
+      evMap[key].push(ev);
+    });
+
+    let html = '';
+    // leading days from previous month
+    for (let i = firstDay - 1; i >= 0; i--) {
+      const day = daysInPrev - i;
+      html += `<div class="cal-day cal-other"><div class="cal-day-num">${day}</div></div>`;
+    }
+
+    // days of current month
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      const dayDate = new Date(dateStr + 'T00:00:00');
+      const isToday = dayDate.getTime() === today.getTime();
+      const evs     = evMap[dateStr] || [];
+      const hasEv   = evs.length > 0;
+      const allPast = hasEv && evs.every(e => evIsPast(e.date));
+
+      let cls = 'cal-day cal-this-month';
+      if (isToday)  cls += ' cal-today';
+      if (hasEv)    cls += ' cal-has-event';
+      if (allPast)  cls += ' cal-dot-past-day';
+
+      let dotsHtml = '';
+      if (hasEv) {
+        dotsHtml = '<div class="cal-dot-wrap">' +
+          evs.map(ev => `<div class="cal-event-dot${evIsPast(ev.date)?' cal-dot-past':''}">${ev.title}</div>`).join('') +
+          '</div>';
+      }
+
+      let tooltipHtml = '';
+      if (hasEv) {
+        tooltipHtml = '<div class="cal-tooltip">' +
+          evs.map(ev => `<strong>${ev.title}</strong><br>${ev.time} · ${ev.location}`).join('<br><br>') +
+          '</div>';
+      }
+
+      const clickAttr = hasEv ? `onclick="calSelectDay('${dateStr}')"` : '';
+
+      html += `<div class="${cls}" ${clickAttr}>
+        <div class="cal-day-num">${d}</div>
+        ${dotsHtml}
+        ${tooltipHtml}
+      </div>`;
+    }
+
+    // trailing days for next month
+    const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
+    const trailing   = totalCells - firstDay - daysInMonth;
+    for (let d = 1; d <= trailing; d++) {
+      html += `<div class="cal-day cal-other"><div class="cal-day-num">${d}</div></div>`;
+    }
+
+    document.getElementById('calDays').innerHTML = html;
+  }
+
+  function calSelectDay(dateStr) {
+    // highlight selected
+    document.querySelectorAll('.cal-day.cal-selected').forEach(el => el.classList.remove('cal-selected'));
+    event.currentTarget.classList.add('cal-selected');
+
+    const evs = EV_EVENTS.filter(e => e.date === dateStr);
+    if (!evs.length) return;
+
+    const d = new Date(dateStr + 'T00:00:00');
+    const dateLabel = CAL_MONTHS_LONG[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+
+    let inner = `<div class="cal-detail-date">📅 ${dateLabel}</div>`;
+    evs.forEach(ev => {
+      const past = evIsPast(ev.date);
+      const reg  = evIsReg(ev.id);
+      let cta = '';
+      if (past)     cta = '<button class="cal-detail-cta ended" disabled>Event Ended</button>';
+      else if (reg) cta = '<button class="cal-detail-cta" style="color:var(--dark-burgundy);border-color:var(--dark-burgundy);cursor:default;" disabled>✓ Registered</button>';
+      else          cta = `<button class="cal-detail-cta" onclick="evOpenModal('${ev.id}')">Register Now →</button>`;
+
+      inner += `
+        <div class="cal-detail-event${past?' past':''}">
+          <div class="cal-detail-type">${ev.type}</div>
+          <div class="cal-detail-title">${ev.title}</div>
+          <div class="cal-detail-meta"><span>📍 ${ev.location}</span><span>🕐 ${ev.time}</span></div>
+          <p class="cal-detail-desc">${ev.description}</p>
+          ${cta}
+        </div>`;
+    });
+
+    document.getElementById('calDetailInner').innerHTML = inner;
+    document.getElementById('calDetail').style.display = 'block';
+    document.getElementById('calDetail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  initAuth().then(() => { evRenderAll(); calInit(); });
+</script>
+
+</body>
+</html>
