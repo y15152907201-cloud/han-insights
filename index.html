@@ -332,6 +332,14 @@
     <h1 class="page-hero-title">Newsletter</h1>
     <p class="page-hero-sub">Weekly insights delivered to your inbox.</p>
   </div>
+  <section class="newsletter-section">
+    <p class="section-label">Newsletter</p>
+    <h2>Latest Insights</h2>
+
+    <div id="newsletter-list" class="newsletter-list">
+      Loading newsletters...
+    </div>
+  </section>
   <div class="inner-section">
     <div class="nl-subscribe-box">
       <div>
@@ -370,18 +378,27 @@
     </div>
     <div class="team-section">
       <p class="team-label">The Team</p>
-      <div class="team-grid" style="grid-template-columns: repeat(3, 1fr); max-width: 1200px; width: 100%; gap: 32px;">
+      <div class="team-grid" style="grid-template-columns: repeat(1, 1fr); max-width: 1200px; width: 100%; gap: 32px;">
         <div class="team-card" style="text-align:left;">
-          <div class="team-avatar" style="width:150px;height:150px;border:none;margin-left:0;overflow:hidden;">
+          <div class="team-avatar" style="width:250px;height:250px;border:none;overflow:hidden;">
             <img src="selina_profile_img.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='👤'">
           </div>
           <p class="team-name" style="margin-top:12px;">Selina Han</p>
           <p class="team-role">Founder & Chief Economist</p>
-          <p style="font-size:12px;color:#555;margin-top:10px;line-height:1.7;">Selina Han is the Founder of Han Insights and a former Economist at Cboe Global Markets, where she specialized in U.S. equity markets, listed options and derivatives, market structure, exchange economics, and financial market regulation. Her doctoral research at the University of Illinois Urbana-Champaign (UIUC) focuses on Applied Economics, with an emphasis on commodity pricing and commodity markets. Her research interests include market microstructure, derivatives markets, artificial intelligence, and the evolving impact of macroeconomic developments on financial markets.
-Selina has contributed to research and policy analysis on U.S. capital markets, supporting exchange leadership, regulators, and market participants on issues related to market quality, trading mechanisms, and industry developments. Through Han Insights, she shares research and insights on equity markets, derivatives, AI, commodities, and global market trends with financial institutions, industry professionals, and investors.</p>
+          <p style="font-size:12px;color:#555;margin-top:10px;line-height:1.7;">Selina Han is the Founder of Han Insights, an independent research platform dedicated to helping professionals, investors, and organizations better understand the forces shaping financial markets and the global economy.
+
+With expertise in U.S. equity markets, listed options and derivatives, market structure, exchange economics, artificial intelligence, commodities, and macroeconomic trends, Selina combines rigorous research with real-world market experience to translate complex ideas into clear, actionable insights. Her work bridges finance, technology, and public policy, connecting developments across disciplines to explain not only what is happening in the markets, but why it matters.
+
+Before founding Han Insights, Selina served as an Economist at Cboe Global Markets, where she specialized in U.S. equity and derivatives markets, market structure, exchange economics, and financial market regulation.
+
+Han Insights was founded on the belief that the future belongs to those who can connect ideas across disciplines. By combining rigorous research with clear communication, Selina aims to make institutional-quality insights more accessible and inspire more thoughtful conversations about markets, technology, investing, and the future.</p>
         </div>
+      </div>
+      <br>
+      <br>
+      <div class="team-grid" style="grid-template-columns: repeat(2, 1fr); max-width: 1200px; width: 100%; gap: 32px;">
         <div class="team-card" style="text-align:left;">
-          <div class="team-avatar" style="width:150px;height:150px;border:none;margin-left:0;overflow:hidden;">
+          <div class="team-avatar" style="width:150px;height:150px;border:none;overflow:hidden;">
             <img src="gina_profile_img.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='✦'">
           </div>
           <p class="team-name" style="margin-top:12px;">Jinhan Yang (Gina)</p>
@@ -389,13 +406,22 @@ Selina has contributed to research and policy analysis on U.S. capital markets, 
           <p style="font-size:12px;color:#555;margin-top:10px;line-height:1.7;">Graphic Design student at Columbia College Chicago, with a deep interest in finance, investment, and the intersection of visual storytelling and market analysis. Committed to women's welfare and bringing more diverse voices into financial discourse.</p>
         </div>
         <div class="team-card" style="text-align:left;">
-          <div class="team-avatar" style="width:150px;height:150px;border:none;margin-left:0;overflow:hidden;">
+          <div class="team-avatar" style="width:150px;height:150px;border:none;overflow:hidden;">
+            <img src="pradeepya_profile_img.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='✦'">
+          </div>
+          <p class="team-name" style="margin-top:12px;">Pradeepya Reddy</p>
+          <p class="team-role">Program & Marketing Manager</p>
+          <p style="font-size:12px;color:#555;margin-top:10px;line-height:1.7;">Hi! I’m Pradeepya, a student who loves bringing people together and turning ideas into meaningful experiences. I enjoy planning events, promoting programs, and working with teams to make every project engaging and successful. I’m always excited to learn, take on new challenges, and create opportunities that help people connect, grow, and have fun along the way.</p>
+        </div>
+        <div class="team-card" style="text-align:left;">
+          <div class="team-avatar" style="width:150px;height:150px;border:none;overflow:hidden;">
             <img src="felix_profile_img.jpg" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML='✦'">
           </div>
           <p class="team-name" style="margin-top:12px;">Tiancheng Ma (Felix)</p>
           <p class="team-role">Tech Lead</p>
           <p style="font-size:12px;color:#555;margin-top:10px;line-height:1.7;">Tiancheng Ma is a Ph.D. student in Computer Science at the University of Tennessee, Knoxville, focusing on software testing. He received his M.S. in Computer Science and B.S. in Mathematics–Computer Science from UC San Diego. His interests include software testing, causal inference, AI-assisted software engineering, and the reliability of intelligent systems.</p>
         </div>
+        
       </div>
     </div>
   </div>
@@ -699,6 +725,56 @@ function renderNewsletter() {
 }
 
 function isPaidUser() { return isLoggedIn(); }
+
+// ===== LOAD NEWSLETTER DATA FROM GOOGLE SHEET CSV =====
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT2tiQPZb_NsdJlrS46iiYfyn1J-i_-IEeWZoiv4Ls77bjn2odBM42E8qiOkm9NmBIvk4HtWnnEA_mG/pub?gid=0&single=true&output=csv";
+
+async function loadNewsletters() {
+  const container = document.getElementById("newsletter-list");
+
+  try {
+    const response = await fetch(SHEET_CSV_URL);
+    const csvText = await response.text();
+
+    const rows = csvText.trim().split("\n").map(row => {
+      return row.split(",").map(cell => cell.trim());
+    });
+
+    const headers = rows[0];
+    const data = rows.slice(1).map(row => {
+      const item = {};
+      headers.forEach((header, index) => {
+        item[header] = row[index] || "";
+      });
+      return item;
+    });
+
+    const visibleItems = data
+      .filter(item => item.visible && item.visible.toLowerCase() === "true")
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (visibleItems.length === 0) {
+      container.innerHTML = "<p>No newsletters available yet.</p>";
+      return;
+    }
+
+    container.innerHTML = visibleItems.map(item => `
+      <article class="newsletter-card">
+        <p class="newsletter-date">${item.date || ""}</p>
+        <h3>${item.title || ""}</h3>
+        <p class="newsletter-category">${item.category || ""}</p>
+        <p>${item.summary || ""}</p>
+        ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener">Read more</a>` : ""}
+      </article>
+    `).join("");
+
+  } catch (error) {
+    console.error(error);
+    container.innerHTML = "<p>Unable to load newsletters right now.</p>";
+  }
+}
+
+loadNewsletters();
 
 // ===== ARTICLE VIEWER with 知乎-style gradient paywall =====
 function openArticle(id) {
